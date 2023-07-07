@@ -1,7 +1,7 @@
 
 import requests
 
-from parser import parse_articlev2, summarise
+from article_parser import parse_articlev2, summarise
 
 import csv
 from urllib.parse import urlparse
