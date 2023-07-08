@@ -1,7 +1,7 @@
 
 import requests
 
-from article_parser import parse_articlev2, summarise
+from article_parser import parse_articlev2, summarise, summarise_online
 
 import csv
 from urllib.parse import urlparse
@@ -122,7 +122,7 @@ def get_latest_posts(page=1):
             if o.hostname in news_domains or domain in news_domains:
                 s = parse_articlev2(post['url_meta']['url'])
                 if s:
-                    s = summarise(s)
+                    s = summarise_online(s)
                     print(post['hash_id'])
                     print(s)
                     post_reply(post['hash_id'], s)
