@@ -30,4 +30,7 @@ def summarise(article):
 
     summary = [str(sentence) for sentence in summarizer(parser.document, SENTENCES_COUNT)]
 
-    return '\n'.join(summary)
+    if len(summary) > 2:
+        summary[2] = summary[2] + '\n'
+
+    return ' \n'.join(summary)
