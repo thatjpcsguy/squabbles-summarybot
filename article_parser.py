@@ -43,7 +43,7 @@ def summarise_online(article):
         'content-type': 'text/plain;charset=UTF-8',
     }
     data = {
-            "text": article,
+            "text": article[-14500:] if len(article) > 14500 else article,
             "locale": "en"
     }
 
@@ -56,15 +56,11 @@ def summarise_online(article):
     if response.status_code == 200:
         return response.text
     
-    print(response.text)
-    return summarise(article)
-
-
+    return None
 
 
 if __name__ == '__main__':
-    url = 'https://www.dexerto.com/overwatch/overwatch-2-team-reveals-plans-to-bring-hanamura-back-as-a-dope-new-map-2204066/'
-
+    url = 'https://apnews.com/article/south-korea-japan-fukushima-wastewater-iaea-37b42b2d442d15115dae462b48494fd6'
 
     article = parse_articlev2(url)
     if article:

@@ -3,11 +3,13 @@ import requests
 
 from article_parser import parse_articlev2, summarise, summarise_online
 
-import csv
 from urllib.parse import urlparse
 import pickle
 import sys
 import os
+
+skip_communities = []
+skip_authors = ['catullus48108']
 
 
 def exists(h, path='cache'):
@@ -82,6 +84,7 @@ def post_reply(post_id, summary):
 
 
     if resp.status_code != 201:
+        print(post_id)
         print(resp)
         print(resp.json())
         exit()
@@ -96,7 +99,10 @@ unknown_domains = load_unknown_domains()
 def get_latest_posts(page=1):
     feed = 'feed/all' # s/news/posts
 
-    resp = requests.get(f'https://squabbles.io/api/{feed}?page={page}&sort=new&')
+    headers = {
+        'authorization': 'Bearer ' + os.environ['SQUABBLES_TOKEN']
+    }
+    resp = requests.get(f'https://squabbles.io/api/{feed}?page={page}&sort=new&', headers=headers)
     data = resp.json()
 
     if 'data' not in data:
@@ -105,6 +111,12 @@ def get_latest_posts(page=1):
 
     for post in data['data']:
         post_id = post['hash_id']
+
+        if post['community_name'] in skip_communities:
+            continue
+
+        if post['author_username'] in skip_authors:
+            continue
 
         if exists(post_id):
             continue
@@ -123,10 +135,14 @@ def get_latest_posts(page=1):
                 s = parse_articlev2(post['url_meta']['url'])
                 if s:
                     s = summarise_online(s)
-                    print(post['hash_id'])
-                    print(s)
-                    post_reply(post['hash_id'], s)
-                    print("Posted: " + post_id)
+                    if s:
+                        print(post['hash_id'])
+                        print(s)
+                        print(post)
+                        post_reply(post['hash_id'], s)
+                        print("Posted: " + post_id)
+                    else:
+                        print("Failed: " + post_id)
             else:
                 print(domain)
                 unknown_domain(domain)
@@ -135,9 +151,6 @@ def get_latest_posts(page=1):
     if data['current_page'] < 5 and data['next_page_url']:
         get_latest_posts(page=page+1)
 
-    
-
 
 if __name__ == '__main__':
     get_latest_posts()
-
