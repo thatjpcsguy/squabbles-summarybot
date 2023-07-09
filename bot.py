@@ -1,7 +1,7 @@
 
 import requests
 
-from article_parser import parse_articlev2, summarise, summarise_online
+from article_parser import parse_article, summarise
 
 from urllib.parse import urlparse
 import pickle
@@ -132,19 +132,21 @@ def get_latest_posts(page=1):
                 continue
 
             if o.hostname in news_domains or domain in news_domains:
-                s = parse_articlev2(post['url_meta']['url'])
+                s = parse_article(post['url_meta']['url'])
                 if s:
-                    s = summarise_online(s)
+                    s = summarise(s)
                     if s:
-                        print(post['hash_id'])
-                        print(s)
-                        print(post)
-                        post_reply(post['hash_id'], s)
+                        post_reply(post_id, s)
                         print("Posted: " + post_id)
                     else:
+                        print(s)
+                        print(post)
                         print("Failed: " + post_id)
+                else:
+                    print(post)
+                    print("Failed: " + post_id)
             else:
-                print(domain)
+                print(domain + ' -> ' + post['url_meta']['url'])
                 unknown_domain(domain)
                 unknown_domains.append(domain)
 
