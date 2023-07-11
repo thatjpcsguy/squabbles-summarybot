@@ -4,3 +4,5 @@ lemmy.world
 tiktok.com
 reddit.com
 testflight.apple.com
+ft.com
+bloomberg.com

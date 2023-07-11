@@ -7,9 +7,10 @@ from urllib.parse import urlparse
 import pickle
 import sys
 import os
+import sys
 
 skip_communities = []
-skip_authors = ['catullus48108']
+skip_authors = ['catullus48108', 'jh', 'dammitriggs']
 
 
 def exists(h, path='cache'):
@@ -87,16 +88,17 @@ def post_reply(post_id, summary):
         print(post_id)
         print(resp)
         print(resp.json())
-        exit()
+        return False
 
     save(post_id, summary)
+    return True
 
 
 news_domains = load_news_domains()
 domains_blacklist = load_blacklist()
 unknown_domains = load_unknown_domains()
 
-def get_latest_posts(page=1):
+def get_latest_posts(count_pages=5, page=1):
     feed = 'feed/all' # s/news/posts
 
     headers = {
@@ -136,23 +138,30 @@ def get_latest_posts(page=1):
                 if s:
                     s = summarise(s)
                     if s:
-                        post_reply(post_id, s)
-                        print("Posted: " + post_id)
+                        r = post_reply(post_id, s)
+                        if r:
+                            print("Posted: " + post_id)
+                        else:
+                            print(s)
+                            print(post)
+                            print("Failed Posting: " + post_id)
                     else:
                         print(s)
                         print(post)
-                        print("Failed: " + post_id)
+                        print("Failed No Summary: " + post_id)
                 else:
                     print(post)
-                    print("Failed: " + post_id)
+                    print("Failed No Article: " + post_id)
             else:
                 print(domain + ' -> ' + post['url_meta']['url'])
                 unknown_domain(domain)
                 unknown_domains.append(domain)
 
-    if data['current_page'] < 5 and data['next_page_url']:
-        get_latest_posts(page=page+1)
+    if data['current_page'] < count_pages and data['next_page_url']:
+        get_latest_posts(count_pages=count_pages, page=page+1)
 
 
 if __name__ == '__main__':
-    get_latest_posts()
+    print("Running... ")
+    count_pages = int(sys.argv[-1]) # rudimentary, get the number from the last command line parameter
+    get_latest_posts(count_pages=count_pages)
