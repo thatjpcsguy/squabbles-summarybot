@@ -31,14 +31,15 @@ def summarise(article):
     )
 
     if response.status_code == 200:
-        return response.text
+        return response.text.encode("latin-1").decode('utf-8')
     
     return None
 
 
 if __name__ == '__main__':
-    url = 'https://apnews.com/article/south-korea-japan-fukushima-wastewater-iaea-37b42b2d442d15115dae462b48494fd6'
+    url = 'https://variety.com/2023/digital/news/colleen-ballinger-canceled-tour-dates-podcast-trisha-paytas-1235666512/'
 
-    article = parse_articlev2(url)
+    article = parse_article(url)
+
     if article:
         print(summarise(article))
